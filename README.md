@@ -6,7 +6,9 @@
 
 <a href="https://github.com/haoxiaoyong1014/netty-time">springboot 整合netty编写时间服务器</a>
 
-这次通过 Netty 传递文件 
+这次通过 Netty 传递文件
+
+此项目地址: &#8194;  https://github.com/haoxiaoyong1014/netty-file 
 
 #### 项目依赖
 ```xml
@@ -214,8 +216,9 @@ public class FileUploadServerHandler extends ChannelInboundHandlerAdapter {
 
 我们可以先运行服务端的`ServerFileTest`测试类,然后运行客户端的 `ClientFileTest`测试类进行
 
-具体代码就不贴上去了,可以在这里进行下载这案例
-
+具体代码就不贴上去了,可以在这里进行下载这个案例
+<a href="https://github.com/haoxiaoyong1014/netty-file">netty-file</a>
+&ensp;&ensp;如果对你有帮助还请给个Star哦
 
 
 
