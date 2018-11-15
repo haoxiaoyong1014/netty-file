@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="netty-client" />
+        <module name="netty-common" />
+        <module name="netty-server" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="1.8">
+      <module name="netty-client" target="1.6" />
+      <module name="netty-common" target="1.6" />
+      <module name="netty-file" target="1.6" />
+      <module name="netty-server" target="1.6" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
