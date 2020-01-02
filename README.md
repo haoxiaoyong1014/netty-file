@@ -1,5 +1,7 @@
 #### Netty 文件传输
 
+[2020-1-2更新](#2020-1-2更新)
+
 在之前的项目中介绍了
 
 <a href="https://github.com/haoxiaoyong1014/springboot-netty">springboot整合 netty做心跳检测</a>
@@ -221,4 +223,93 @@ public class FileUploadServerHandler extends ChannelInboundHandlerAdapter {
 &ensp;&ensp;如果对你有帮助还请给个Star哦
 
 
+#### 2020-1-2更新
+
+新增多个文件同时异步上传功能
+
+引入线程,在开发中如果有此需求尽量使用线程池;
+
+更新的代码有:
+
+```java
+public class FileUploadClient implements Runnable {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(FileUploadClient.class);
+
+    private int port;
+    private String host;
+    private FileUploadFile fileUploadFile;
+
+
+    public FileUploadClient(int port, String host, FileUploadFile fileUploadFile) {
+        this.port = port;
+        this.host = host;
+        this.fileUploadFile = fileUploadFile;
+    }
+
+    @Override
+    public void run() {
+        EventLoopGroup group = new NioEventLoopGroup();
+        try {
+            Bootstrap b = new Bootstrap();
+            b.group(group).channel(NioSocketChannel.class)
+                    //是禁用nagle算法
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .handler(new ChannelInitializer<Channel>() {
+
+                        @Override
+                        protected void initChannel(Channel ch) throws Exception {
+                            ch.pipeline().addLast(new ObjectEncoder());
+                            ch.pipeline().addLast(
+                                    new ObjectDecoder(
+                                            ClassResolvers
+                                                    .weakCachingConcurrentResolver(null)));
+                            ch.pipeline().addLast(
+                                    new FileUploadClientHandler(
+                                            fileUploadFile));
+                        }
+                    });
+
+            ChannelFuture f = null;
+            try {
+                f = b.connect(host, port).sync();
+                f.channel().closeFuture().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            LOGGER.info("FileUploadClient connect()结束");
+        } finally {
+            group.shutdownGracefully();
+        }
+    }
+  }  
+```
+FileUploadClient类实现Runnable并重写run方法;
+
+测试类:
+
+```java
+public static void main(String[] args) {
+        final int FILE_PORT = 9991;
+        try {
+            List<String> fileNameList = new ArrayList();
+            fileNameList.add("/test-1.zip");
+            fileNameList.add("/test-2.zip");
+
+            for (String fileName : fileNameList) {
+                FileUploadFile uploadFile = new FileUploadFile();
+                File file = new File(fileName);
+                String fileMd5 = file.getName();// 文件名
+                uploadFile.setFile(file);
+                uploadFile.setFile_md5(fileMd5);
+                uploadFile.setStarPos(0);// 文件开始位置
+                Thread thread = new Thread(new FileUploadClient(FILE_PORT, "127.0.0.1", uploadFile));
+                thread.start();
+                System.out.println(fileName + "开始传输。。。。。。");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+```
 
